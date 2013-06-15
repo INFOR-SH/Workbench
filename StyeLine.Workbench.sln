@@ -1,0 +1,49 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2012 for Windows Desktop
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SyteLine.Technique.Code", "..\Technique\Code\SyteLine.Technique.Code.vcxproj", "{16800EFE-791A-44EA-899E-71F991F0804E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9C0E3958-6A20-4C84-ABA1-DC8230B41A9E} = {9C0E3958-6A20-4C84-ABA1-DC8230B41A9E}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SyteLine.Technique.Ecotope", "..\Technique\Ecotope\SyteLine.Technique.Ecotope.vcxproj", "{9C0E3958-6A20-4C84-ABA1-DC8230B41A9E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReplaceMssqlFields", "ReplaceMssqlFields\ReplaceMssqlFields.vcxproj", "{580AB393-1324-43E8-9B3B-3A91A96A580D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9C0E3958-6A20-4C84-ABA1-DC8230B41A9E} = {9C0E3958-6A20-4C84-ABA1-DC8230B41A9E}
+		{16800EFE-791A-44EA-899E-71F991F0804E} = {16800EFE-791A-44EA-899E-71F991F0804E}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AddReportProcedureParameter", "AddReportProcedureParameter\AddReportProcedureParameter.vcxproj", "{A6C37A02-0109-466E-A75E-1B9D59DB336B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9C0E3958-6A20-4C84-ABA1-DC8230B41A9E} = {9C0E3958-6A20-4C84-ABA1-DC8230B41A9E}
+		{16800EFE-791A-44EA-899E-71F991F0804E} = {16800EFE-791A-44EA-899E-71F991F0804E}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{16800EFE-791A-44EA-899E-71F991F0804E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{16800EFE-791A-44EA-899E-71F991F0804E}.Debug|Win32.Build.0 = Debug|Win32
+		{16800EFE-791A-44EA-899E-71F991F0804E}.Release|Win32.ActiveCfg = Release|Win32
+		{16800EFE-791A-44EA-899E-71F991F0804E}.Release|Win32.Build.0 = Release|Win32
+		{9C0E3958-6A20-4C84-ABA1-DC8230B41A9E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9C0E3958-6A20-4C84-ABA1-DC8230B41A9E}.Debug|Win32.Build.0 = Debug|Win32
+		{9C0E3958-6A20-4C84-ABA1-DC8230B41A9E}.Release|Win32.ActiveCfg = Release|Win32
+		{9C0E3958-6A20-4C84-ABA1-DC8230B41A9E}.Release|Win32.Build.0 = Release|Win32
+		{580AB393-1324-43E8-9B3B-3A91A96A580D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{580AB393-1324-43E8-9B3B-3A91A96A580D}.Debug|Win32.Build.0 = Debug|Win32
+		{580AB393-1324-43E8-9B3B-3A91A96A580D}.Release|Win32.ActiveCfg = Release|Win32
+		{580AB393-1324-43E8-9B3B-3A91A96A580D}.Release|Win32.Build.0 = Release|Win32
+		{A6C37A02-0109-466E-A75E-1B9D59DB336B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A6C37A02-0109-466E-A75E-1B9D59DB336B}.Debug|Win32.Build.0 = Debug|Win32
+		{A6C37A02-0109-466E-A75E-1B9D59DB336B}.Release|Win32.ActiveCfg = Release|Win32
+		{A6C37A02-0109-466E-A75E-1B9D59DB336B}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
