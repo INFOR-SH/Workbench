@@ -14,10 +14,10 @@ struct SProcedure
     SProcedure()
     {}
 
-    SProcedure(const SProcedure& oThat)
-        :Name(oThat.Name)
-        ,Path(oThat.Path)
-        ,InsertPoint(oThat.InsertPoint)
+    SProcedure(const SProcedure& that)
+        :Name(that.Name)
+        ,Path(that.Path)
+        ,InsertPoint(that.InsertPoint)
     {}
 
     SProcedure(WSTRING& sPath, WSTRING& sName, size_t nInsertPoint)
@@ -27,11 +27,11 @@ struct SProcedure
     {
     }
 
-    const SProcedure& operator=(const SProcedure& oRValue)
+    const SProcedure& operator=(const SProcedure& rvalue)
     {
-        Name = oRValue.Name;
-        Path = oRValue.Path;
-        InsertPoint = oRValue.InsertPoint;
+        Name = rvalue.Name;
+        Path = rvalue.Path;
+        InsertPoint = rvalue.InsertPoint;
 
         return *this;
     }
@@ -39,7 +39,7 @@ struct SProcedure
 
 vector<wstring> GetFilePaths()
 {
-    vector<wstring> stlPaths;
+    vector<wstring> gPaths;
 
     WIN32_FIND_DATA winFindData;
     wstring sDirectory = L"D:\\INFOR\\StyeLine\\Issues\\TRK142850\\RPT_RDLs\\";
@@ -62,19 +62,19 @@ vector<wstring> GetFilePaths()
                 sFilePath.append(winFindData.cFileName);
 
                 
-                stlPaths.push_back(sFilePath);
+                gPaths.push_back(sFilePath);
             }
         }
         while(FindNextFile(nFind,&winFindData));
     }
 
-    return move(stlPaths);
+    return move(gPaths);
 }
 
 SProcedure FindDatssetProcedueName(WSTRING& sFilePath)
 {
     SProcedure oResult;
-    wifstream stlInputStream(sFilePath);
+    wifstream gInputStream(sFilePath);
     wchar_t wcsBuffer[1024] = {0};
     size_t nReadLine = 1;
     size_t nDatasetLine = 0;
@@ -83,7 +83,7 @@ SProcedure FindDatssetProcedueName(WSTRING& sFilePath)
     wstring sHead = L"<CommandText>";
     wstring sRear = L"</CommandText>";
 
-    while(stlInputStream.getline(wcsBuffer,1024))
+    while(gInputStream.getline(wcsBuffer,1024))
     {
         wstring sLine(wcsBuffer);
 
@@ -130,70 +130,70 @@ SProcedure FindDatssetProcedueName(WSTRING& sFilePath)
         nReadLine++;
     }
 
-    stlInputStream.close();
+    gInputStream.close();
 
     return oResult;
 }
 
 vector<wstring> ReadKeys(wstring sFilePath)
 {
-    vector<wstring> stlResult;
-    wifstream stlInputStream(sFilePath);
+    vector<wstring> gResult;
+    wifstream gInputStream(sFilePath);
     wchar_t wcsBuffer[256] = {0};
 
-    while(stlInputStream.getline(wcsBuffer,256))
+    while(gInputStream.getline(wcsBuffer,256))
     {
         wstring sKey(wcsBuffer);
         transform(sKey.begin(), sKey.end(), sKey.begin(), tolower);
 
-        stlResult.push_back(sKey);
+        gResult.push_back(sKey);
     }
 
-    stlInputStream.close();
+    gInputStream.close();
 
-    return move(stlResult);
+    return move(gResult);
 }
 
-vector<SProcedure> GetRequiredRDLs(const vector<wstring>& stlPaths)
+vector<SProcedure> GetRequiredRDLs(const vector<wstring>& gPaths)
 {
     wstring sKeysFilePath(L"D:\\INFOR\\StyeLine\\Issues\\TRK142850\\RPT_RDLs\\Keys.txt");
-    map<wstring, SProcedure> stlAllMapping;
-    vector<SProcedure> stlRequiredProcedures;
+    map<wstring, SProcedure> gAllMapping;
+    vector<SProcedure> gRequiredProcedures;
 
-    for(int i = 0; i <stlPaths.size(); i++)
+    for(int i = 0; i <gPaths.size(); i++)
     {
-        SProcedure oProcedure = FindDatssetProcedueName(stlPaths[i]);
+        SProcedure oProcedure = FindDatssetProcedueName(gPaths[i]);
 
         if(oProcedure.Name.length() > 0)
         {
-            stlAllMapping[oProcedure.Name] = oProcedure;
+            gAllMapping[oProcedure.Name] = oProcedure;
         }
     }
 
-    vector<wstring> stlKeys = ReadKeys(sKeysFilePath);
-    vector<wstring> stlFailToFindKeys;
+    vector<wstring> gKeys = ReadKeys(sKeysFilePath);
+    vector<wstring> gFailToFindKeys;
 
-    for(int i = 0; i < stlKeys.size(); i++)
+    for(int i = 0; i < gKeys.size(); i++)
     {
-        auto a = stlAllMapping.find(stlKeys[i]);
+        auto a = gAllMapping.find(gKeys[i]);
 
-        if(a != stlAllMapping.end())
+        if(a != gAllMapping.end())
         {
-            stlRequiredProcedures.push_back(a->second);
+            gRequiredProcedures.push_back(a->second);
             wcout<<a->second.Path<<endl;
         }
         else
         {
-            stlFailToFindKeys.push_back(stlKeys[i]);
+            gFailToFindKeys.push_back(gKeys[i]);
         }
     }
 
-    for(int j = 0; j < stlFailToFindKeys.size(); j++)
+    for(int j = 0; j < gFailToFindKeys.size(); j++)
     {
-        wcout<<L"Fail to find the key in RDL file:"<<stlFailToFindKeys[j]<<endl;
+        wcout<<L"Fail to find the key in RDL file:"<<gFailToFindKeys[j]<<endl;
     }
 
-    return move(stlRequiredProcedures);
+    return move(gRequiredProcedures);
 }
 
 void AddParameter(vector<SProcedure>& oProcedures)
@@ -213,29 +213,29 @@ void AddParameter(vector<SProcedure>& oProcedures)
 
         sOutputPath.append(oPath.FileName());
 
-        wifstream stlInputStream(a->Path);
-        wofstream stlOutputStream(sOutputPath, ios::trunc);
+        wifstream gInputStream(a->Path);
+        wofstream gOutputStream(sOutputPath, ios::trunc);
         wchar_t wcsBuffer[4096] = {0};
         bool bDone = false;
 
-        while(stlInputStream.getline(wcsBuffer,4096))
+        while(gInputStream.getline(wcsBuffer,4096))
         {
             if(nReadLine == a->InsertPoint + 1 && bDone == false)
             {
-                stlOutputStream.write(sInserted.c_str(), sInserted.length());
+                gOutputStream.write(sInserted.c_str(), sInserted.length());
                 
                 bDone = true;
             }
             
-            stlOutputStream.write(wcsBuffer, wcslen(wcsBuffer));
-            stlOutputStream.write(L"\n", wcslen(L"\n"));
+            gOutputStream.write(wcsBuffer, wcslen(wcsBuffer));
+            gOutputStream.write(L"\n", wcslen(L"\n"));
 
             memset(wcsBuffer, 0, sizeof(wcsBuffer));
             nReadLine++;
         }
 
-        stlInputStream.close();
-        stlOutputStream.close();
+        gInputStream.close();
+        gOutputStream.close();
 
         wcout<<"Finished file:"<<sOutputPath.c_str()<<endl;
     }
@@ -243,8 +243,8 @@ void AddParameter(vector<SProcedure>& oProcedures)
 
 void main(int argc, wchar_t* argv[])
 {
-    vector<wstring> stlPaths = GetFilePaths();
-    auto aProcedures = GetRequiredRDLs(stlPaths);
+    vector<wstring> gPaths = GetFilePaths();
+    auto aProcedures = GetRequiredRDLs(gPaths);
 
     wcout<<L"Total "<<aProcedures.size()<<L" files need to be processed"<<endl;
 

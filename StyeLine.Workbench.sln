@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2012 for Windows Desktop
+# Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SyteLine.Technique.Code", "..\Technique\Code\SyteLine.Technique.Code.vcxproj", "{16800EFE-791A-44EA-899E-71F991F0804E}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9C0E3958-6A20-4C84-ABA1-DC8230B41A9E} = {9C0E3958-6A20-4C84-ABA1-DC8230B41A9E}
@@ -19,6 +19,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AddReportProcedureParameter
 		{9C0E3958-6A20-4C84-ABA1-DC8230B41A9E} = {9C0E3958-6A20-4C84-ABA1-DC8230B41A9E}
 		{16800EFE-791A-44EA-899E-71F991F0804E} = {16800EFE-791A-44EA-899E-71F991F0804E}
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Technique", "Technique", "{AFB59EA6-3375-4ED9-A15A-EBFF90B2A4E8}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AddProcedureParameters", "AddProcedureParameters\AddProcedureParameters.vcxproj", "{4E82CAA9-68DD-4057-A2CC-0F42DC267350}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,8 +46,16 @@ Global
 		{A6C37A02-0109-466E-A75E-1B9D59DB336B}.Debug|Win32.Build.0 = Debug|Win32
 		{A6C37A02-0109-466E-A75E-1B9D59DB336B}.Release|Win32.ActiveCfg = Release|Win32
 		{A6C37A02-0109-466E-A75E-1B9D59DB336B}.Release|Win32.Build.0 = Release|Win32
+		{4E82CAA9-68DD-4057-A2CC-0F42DC267350}.Debug|Win32.ActiveCfg = Debug|Win32
+		{4E82CAA9-68DD-4057-A2CC-0F42DC267350}.Debug|Win32.Build.0 = Debug|Win32
+		{4E82CAA9-68DD-4057-A2CC-0F42DC267350}.Release|Win32.ActiveCfg = Release|Win32
+		{4E82CAA9-68DD-4057-A2CC-0F42DC267350}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9C0E3958-6A20-4C84-ABA1-DC8230B41A9E} = {AFB59EA6-3375-4ED9-A15A-EBFF90B2A4E8}
+		{16800EFE-791A-44EA-899E-71F991F0804E} = {AFB59EA6-3375-4ED9-A15A-EBFF90B2A4E8}
 	EndGlobalSection
 EndGlobal

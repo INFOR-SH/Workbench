@@ -22,9 +22,9 @@ public:
     {
     }
 
-    SFilePath(const SFilePath& oThat)
-        :InputPath(oThat.InputPath)
-        ,OutputPath(oThat.OutputPath)
+    SFilePath(const SFilePath& that)
+        :InputPath(that.InputPath)
+        ,OutputPath(that.OutputPath)
     {
     }
 
@@ -34,28 +34,28 @@ public:
     {
     }
 
-    SFilePath(const SFilePath&& oThat)
+    SFilePath(const SFilePath&& that)
     {
-        *this = move(oThat);
+        *this = move(that);
     }
 
 public:
-    const SFilePath& operator=(const SFilePath& oRValue)
+    const SFilePath& operator=(const SFilePath& rvalue)
     {
-        InputPath = oRValue.InputPath;
-        OutputPath = oRValue.OutputPath;
+        InputPath = rvalue.InputPath;
+        OutputPath = rvalue.OutputPath;
 
         return *this;
     }
 };
 
-void ContinueWritting(char* csBuffer, ofstream& stlOuptuFileStream)
+void ContinueWritting(char* csBuffer, ofstream& gOuptuFileStream)
 {
-    stlOuptuFileStream.write(csBuffer, strlen(csBuffer));
-    stlOuptuFileStream.write("\n", strlen("\n"));
+    gOuptuFileStream.write(csBuffer, strlen(csBuffer));
+    gOuptuFileStream.write("\n", strlen("\n"));
 }
 
-bool AddParameter(char* csBuffer, ofstream& stlOuptuFileStream, MSTRING& sInsertParameter)
+bool AddParameter(char* csBuffer, ofstream& gOuptuFileStream, MSTRING& sInsertParameter)
 {
     mstring sLine(csBuffer);
     int nIndex = sLine.find_last_of(")");
@@ -63,9 +63,9 @@ bool AddParameter(char* csBuffer, ofstream& stlOuptuFileStream, MSTRING& sInsert
     if(nIndex == -1)
     {
         sLine.append("\n");
-        stlOuptuFileStream.write(sLine.c_str(), sLine.length());
+        gOuptuFileStream.write(sLine.c_str(), sLine.length());
 
-        stlOuptuFileStream.write(sInsertParameter.c_str(), sInsertParameter.length());
+        gOuptuFileStream.write(sInsertParameter.c_str(), sInsertParameter.length());
     }
     else
     {
@@ -73,18 +73,18 @@ bool AddParameter(char* csBuffer, ofstream& stlOuptuFileStream, MSTRING& sInsert
         mstring sLastWritten = sLine.substr(nIndex, sLine.length()-nIndex);
 
         sFirstWritten.append("\n");
-        stlOuptuFileStream.write(sFirstWritten.c_str(), sFirstWritten.length());
+        gOuptuFileStream.write(sFirstWritten.c_str(), sFirstWritten.length());
 
-        stlOuptuFileStream.write(sInsertParameter.c_str(), sInsertParameter.length());
+        gOuptuFileStream.write(sInsertParameter.c_str(), sInsertParameter.length());
 
         sLastWritten.append("\n");
-        stlOuptuFileStream.write(sLastWritten.c_str(), sLastWritten.length());
+        gOuptuFileStream.write(sLastWritten.c_str(), sLastWritten.length());
     }
 
     return true;
 }
 
-int ReplaceProcedureName(int nReadLine, char* csBuffer, ofstream& stlOuptuFileStream, CSqlProcedure& oProcedure, MSTRING& sOldProcedureName, MSTRING& sNewProcedureName)
+int ReplaceProcedureName(int nReadLine, char* csBuffer, ofstream& gOuptuFileStream, CSqlProcedure& oProcedure, MSTRING& sOldProcedureName, MSTRING& sNewProcedureName)
 {
     int nResult = 0;
     mstring sLine(csBuffer);
@@ -102,11 +102,11 @@ int ReplaceProcedureName(int nReadLine, char* csBuffer, ofstream& stlOuptuFileSt
         mstring sFirstWritten = sLine.substr(0, nIndex);
         mstring sLastWritten = sLine.substr(nIndex + sOldProcedureName.length(), sLine.length() - nIndex - sOldProcedureName.length());
 
-        stlOuptuFileStream.write(sFirstWritten.c_str(), sFirstWritten.length());
-        stlOuptuFileStream.write(sNewProcedureName.c_str(), sNewProcedureName.length());
+        gOuptuFileStream.write(sFirstWritten.c_str(), sFirstWritten.length());
+        gOuptuFileStream.write(sNewProcedureName.c_str(), sNewProcedureName.length());
 
         sLastWritten.append("\n");
-        stlOuptuFileStream.write(sLastWritten.c_str(), sLastWritten.length());
+        gOuptuFileStream.write(sLastWritten.c_str(), sLastWritten.length());
 
         nResult = 1;
     }
@@ -114,7 +114,7 @@ int ReplaceProcedureName(int nReadLine, char* csBuffer, ofstream& stlOuptuFileSt
     return nResult;
 }
 
-void AddProcedureArgument(char* csBuffer, ofstream& stlOuptuFileStream, CSqlProcedure& oProcedure, const CSqlArgument& oLastArgument1, MSTRING& sInsertArgument1)
+void AddProcedureArgument(char* csBuffer, ofstream& gOuptuFileStream, CSqlProcedure& oProcedure, const CSqlArgument& oLastArgument1, MSTRING& sInsertArgument1)
 {
     mstring sLine(csBuffer);
     int nIndex = sLine.find_last_of("/");
@@ -122,9 +122,9 @@ void AddProcedureArgument(char* csBuffer, ofstream& stlOuptuFileStream, CSqlProc
     if(nIndex == -1)
     {
         sLine.append("\n");
-        stlOuptuFileStream.write(sLine.c_str(), sLine.length());
+        gOuptuFileStream.write(sLine.c_str(), sLine.length());
 
-        stlOuptuFileStream.write(sInsertArgument1.c_str(), sInsertArgument1.length());
+        gOuptuFileStream.write(sInsertArgument1.c_str(), sInsertArgument1.length());
     }
     else
     {
@@ -132,12 +132,12 @@ void AddProcedureArgument(char* csBuffer, ofstream& stlOuptuFileStream, CSqlProc
         mstring sLastWritten = sLine.substr(nIndex, sLine.length()-nIndex);
 
         sFirstWritten.append("\n");
-        stlOuptuFileStream.write(sFirstWritten.c_str(), sFirstWritten.length());
+        gOuptuFileStream.write(sFirstWritten.c_str(), sFirstWritten.length());
 
-        stlOuptuFileStream.write(sInsertArgument1.c_str(), sInsertArgument1.length());
+        gOuptuFileStream.write(sInsertArgument1.c_str(), sInsertArgument1.length());
 
         sLastWritten.append("\n");
-        stlOuptuFileStream.write(sLastWritten.c_str(), sLastWritten.length());
+        gOuptuFileStream.write(sLastWritten.c_str(), sLastWritten.length());
     }
 }
 
@@ -149,6 +149,7 @@ bool ProcessFile(CMssqlCapturer& oCapturer, MSTRING& sInputFileName, MSTRING& sO
     mstring sProcedureName2("@EXTGEN_SpName");
     CSqlFile oSqlFile = oCapturer.GetSqlFile();
     auto aParameters = oSqlFile.Declaration().Parameters();
+
     CSqlProcedure oProcedure1 = oSqlFile.QueryProcedure(sOldProcedureName1);
     CSqlProcedure oProcedure2 = oSqlFile.QueryProcedure(sProcedureName2);
     
@@ -167,8 +168,8 @@ bool ProcessFile(CMssqlCapturer& oCapturer, MSTRING& sInputFileName, MSTRING& sO
     CSqlVariable oLastParameter(aParameters.Last());
     CSqlArgument oLastArgument1(oProcedure1.QuoteArguments().Last());
     CSqlArgument oLastArgument2(oProcedure2.QuoteArguments().Last());
-    ifstream stlInputFileStream(sInputFileName);
-    ofstream stlOuptuFileStream(sOutputFileName, ios::trunc);
+    ifstream gInputFileStream(sInputFileName);
+    ofstream gOuptuFileStream(sOutputFileName, ios::trunc);
 
     char csBuffer[2048] = {0};
     size_t nReadLine = 1;
@@ -177,25 +178,25 @@ bool ProcessFile(CMssqlCapturer& oCapturer, MSTRING& sInputFileName, MSTRING& sO
     mstring sInsertArgument2 = "   , @UserId\n";
     int nReplaced = 0;
 
-    while(stlInputFileStream.getline(csBuffer,2048))
+    while(gInputFileStream.getline(csBuffer,2048))
     {
         if(nReadLine == oLastParameter.EndingLine())
         {
-            AddParameter(csBuffer, stlOuptuFileStream, sInsertParameter);
+            AddParameter(csBuffer, gOuptuFileStream, sInsertParameter);
         }
         else if(nReadLine == oLastArgument2.EndingLine())
         {
-            AddProcedureArgument(csBuffer, stlOuptuFileStream, oProcedure2, oLastArgument2, sInsertArgument2);
+            AddProcedureArgument(csBuffer, gOuptuFileStream, oProcedure2, oLastArgument2, sInsertArgument2);
         }
         else if(nReadLine >= oProcedure1.StartingLine() && nReadLine <= oProcedure1.EndingLine())
         {
             if(nReplaced == 0)
             {
-                int nResult = ReplaceProcedureName(nReadLine, csBuffer, stlOuptuFileStream, oProcedure1, sOldProcedureName1, sNewProcedureName1);
+                int nResult = ReplaceProcedureName(nReadLine, csBuffer, gOuptuFileStream, oProcedure1, sOldProcedureName1, sNewProcedureName1);
                 
                 if(nResult == 0)
                 {
-                    ContinueWritting(csBuffer, stlOuptuFileStream);
+                    ContinueWritting(csBuffer, gOuptuFileStream);
                 }
                 else if(nResult == -1)
                 {
@@ -211,23 +212,23 @@ bool ProcessFile(CMssqlCapturer& oCapturer, MSTRING& sInputFileName, MSTRING& sO
             {
                 if(nReadLine == oLastArgument1.EndingLine())
                 {
-                    AddProcedureArgument(csBuffer, stlOuptuFileStream, oProcedure1, oLastArgument1, sInsertArgument1);
+                    AddProcedureArgument(csBuffer, gOuptuFileStream, oProcedure1, oLastArgument1, sInsertArgument1);
 
                     nReplaced = 2;
                 }
                 else
                 {
-                    ContinueWritting(csBuffer, stlOuptuFileStream);
+                    ContinueWritting(csBuffer, gOuptuFileStream);
                 }
             }
             else
             {
-                ContinueWritting(csBuffer, stlOuptuFileStream);
+                ContinueWritting(csBuffer, gOuptuFileStream);
             }
         }
         else
         {
-            ContinueWritting(csBuffer, stlOuptuFileStream);
+            ContinueWritting(csBuffer, gOuptuFileStream);
         }
 
         memset(csBuffer, 0, sizeof(csBuffer));
@@ -235,15 +236,15 @@ bool ProcessFile(CMssqlCapturer& oCapturer, MSTRING& sInputFileName, MSTRING& sO
     }
 
 RET:
-    stlInputFileStream.close();
-    stlOuptuFileStream.close();
+    gInputFileStream.close();
+    gOuptuFileStream.close();
 
     return bResult;
 }
 
 vector<SFilePath> GetFilePaths()
 {
-    vector<SFilePath> stlFilePaths;
+    vector<SFilePath> gFilePaths;
 
     WIN32_FIND_DATA winFindData;
     wstring sBaseDirectory = L"D:\\INFOR\\StyeLine\\Issues\\TRK142850\\RptSPs\\";
@@ -271,61 +272,61 @@ vector<SFilePath> GetFilePaths()
                 wcstombs(csInputFilePath, sInputFilePath.c_str(), sInputFilePath.length());
                 wcstombs(csOutputFilePath, sOutputFilePath.c_str(), sOutputFilePath.length());
 
-                stlFilePaths.push_back(SFilePath(csInputFilePath, csOutputFilePath));
+                gFilePaths.push_back(SFilePath(csInputFilePath, csOutputFilePath));
             }
         }
         while(FindNextFile(nFind,&winFindData));
     }
 
-    return move(stlFilePaths);
+    return move(gFilePaths);
 }
 
 void main()
 {
-    mstring sInputPath("D:\\INFOR\\StyeLine\\Issues\\TRK142850\\RptSPs\\Rpt_JobExceptionSp.sp");
-    mstring sOutputPath("D:\\INFOR\\StyeLine\\Issues\\TRK142850\\RptSPs\\Outputs\\Rpt_JobExceptionSp.sp");
-    ifstream stlInputStream(sInputPath);
+    mstring sInputPath("D:\\Rpt_JobExceptionSp.sql");
+    mstring sOutputPath("D:\\OUTPUT_Rpt_JobExceptionSp.sql");
+    ifstream gInputStream(sInputPath);
     CMssqlCapturer oCapturer;
-    CMssqlScanner oScanner(&stlInputStream);
+    CMssqlScanner oScanner(&gInputStream);
 
     oScanner.Flex(&oCapturer);
 
-    stlInputStream.close();
+    gInputStream.close();
 
     ProcessFile(oCapturer, sInputPath, sOutputPath);
 
     /*auto aFilePath = GetFilePaths();
-    vector<mstring> stlFailedFiles;
-    vector<mstring> stlSuccessfulFiles;
+    vector<mstring> gFailedFiles;
+    vector<mstring> gSuccessfulFiles;
 
     for(int i = 0; i < aFilePath.size(); i++)
     {
-        ifstream stlInputStream(aFilePath[i].InputPath);
+        ifstream gInputStream(aFilePath[i].InputPath);
         CMssqlCapturer oCapturer;
-        CMssqlScanner oScanner(&stlInputStream);
+        CMssqlScanner oScanner(&gInputStream);
 
         oScanner.Flex(&oCapturer);
 
-        stlInputStream.close();
+        gInputStream.close();
 
         if(ProcessFile(oCapturer, aFilePath[i].InputPath, aFilePath[i].OutputPath) == false)
         {
-            stlFailedFiles.push_back(aFilePath[i].InputPath);
+            gFailedFiles.push_back(aFilePath[i].InputPath);
         }
         else
         {
-            stlSuccessfulFiles.push_back(aFilePath[i].InputPath);
+            gSuccessfulFiles.push_back(aFilePath[i].InputPath);
         }
     }
 
-    for(int j = 0; j < stlFailedFiles.size(); j++)
+    for(int j = 0; j < gFailedFiles.size(); j++)
     {
-        cout<<"FAIL TO PROCESS: "<<stlFailedFiles[j]<<endl;
+        cout<<"FAIL TO PROCESS: "<<gFailedFiles[j]<<endl;
     }
 
-    for(int k = 0; k < stlSuccessfulFiles.size(); k++)
+    for(int k = 0; k < gSuccessfulFiles.size(); k++)
     {
-        cout<<"Successfully PROCESS: "<<stlSuccessfulFiles[k]<<endl;
+        cout<<"Successfully PROCESS: "<<gSuccessfulFiles[k]<<endl;
     }*/
 
 }
