@@ -6,59 +6,36 @@
 using namespace SyteLine::Technique;
 using namespace SyteLine::Technique::Code;
 
-typedef map<wstring, vector<wstring>> GDuplicatedFiles;
-
-struct SFilePath
+void PrintDuplicatedParametersFiles(const map<wstring, vector<wstring>>& gFiles)
 {
-    wstring InputPath;
-    wstring OutputPath;
-
-public:
-    SFilePath()
+    if(!gFiles.empty())
     {
-    }
+        wcout<<L"[DUPLICATED PARAMETERS FILES WOULD BE IGNORED]"<<endl;
 
-    SFilePath(const SFilePath& that)
-        :InputPath(that.InputPath)
-        ,OutputPath(that.OutputPath)
-    {
-    }
-
-    SFilePath(WSTRING& sInputPath, WSTRING& sOutputPath)
-        :InputPath(sInputPath)
-        ,OutputPath(sOutputPath)
-    {
-    }
-
-    SFilePath(const SFilePath&& that)
-    {
-        *this = move(that);
-    }
-
-public:
-    const SFilePath& operator=(const SFilePath& rvalue)
-    {
-        InputPath = rvalue.InputPath;
-        OutputPath = rvalue.OutputPath;
-
-        return *this;
-    }
-};
-
-void PrintDuplicatedParameterFiles(const GDuplicatedFiles& gFiles)
-{
-    wcout<<L"[DUPLICATED PARAMETER FILES WOULD BE IGNORED]"<<endl;
-
-    for(auto a = gFiles.begin(); a != gFiles.end(); a++)
-    {
-        wcout<<L"File:"<<a->first.c_str()<<L";Parameter:";
-
-        for(int i = 0; i <a->second.size(); i++)
+        for(auto a = gFiles.begin(); a != gFiles.end(); a++)
         {
-            wcout<<a->second[i]<<L","<<endl;
-        }
+            wcout<<L"File:"<<a->first.c_str()<<L";Parameter:";
 
-        wcout<<endl;
+            for(int i = 0; i <a->second.size(); i++)
+            {
+                wcout<<a->second[i]<<L","<<endl;
+            }
+
+            wcout<<endl;
+        }
+    }
+}
+
+void PrintDuplicatedProceduresFiles(const vector<wstring>& gFiles)
+{
+    if(!gFiles.empty())
+    {
+        wcout<<L"[DUPLICATED PROCEDURES FILES WOULD BE IGNORED]"<<endl;
+
+        for(int i = 0; i < gFiles.size(); i++)
+        {
+            wcout<<L"File:"<<gFiles[i]<<endl;
+        }
     }
 }
 
@@ -137,72 +114,168 @@ void AddParameter(wchar_t* wcsBuffer, wofstream& gOuptutStream, WSTRING& sInsert
     }
 }
 
-bool ProcessFile(CSqlDeclaration& oDeclaration, WSTRING& sInputPath, WSTRING& sOutputPath, const vector<wstring>& sInsertions)
+int CheckDeclarationRear(WSTRING& sLine, const CSqlVariable& oParameter)
+{
+    wstring sLowerLine = UString::ToLower(sLine);
+    wstring sLastParameterString;
+
+    if(oParameter.Output())
+    {
+        sLastParameterString = L"output";
+    }
+    else if(!oParameter.Value().empty())
+    {
+        sLastParameterString = UString::ToLower(oParameter.Value());
+    }
+    else
+    {
+        sLastParameterString = UString::ToLower(oParameter.Type());
+    }
+
+    int nFound = sLowerLine.find(sLastParameterString);
+
+    return nFound + sLastParameterString.size();
+}
+
+int CheckProcedureRear(WSTRING& sLine, const CSqlArgument& oParameter)
+{
+    wstring sLowerLine = UString::ToLower(sLine);
+    wstring sLastArgumentString;
+
+    if(oParameter.Output())
+    {
+        sLastArgumentString = L"output";
+    }
+    else
+    {
+        sLastArgumentString = UString::ToLower(oParameter.RightValue());
+    }
+
+    int nFound = sLowerLine.find(sLastArgumentString);
+
+    return nFound + sLastArgumentString.size();
+}
+
+void AddParameters(wofstream& gOutputStream,
+                   WSTRING& sLine,
+                   const CSqlVariable& oParameter,
+                   const map<wstring, wstring>& gInsertion)
+{
+    int nIndex = CheckDeclarationRear(sLine, oParameter);
+    wstring sLineHead = sLine.substr(0, nIndex).append(L"\n");
+    wstring sLineRear = sLine.substr(nIndex);
+
+    gOutputStream.write(sLineHead.c_str(), sLineHead.length());
+
+    for(auto a = gInsertion.begin(); a != gInsertion.end(); a++)
+    {
+        wstring sInsertion = a->second;
+
+        sInsertion.append(L"\n");
+
+        gOutputStream.write(sInsertion.c_str(), sInsertion.length());
+    }
+
+    if(sLineRear.length() > 0)
+    {
+        sLineRear.append(L"\n");
+
+        gOutputStream.write(sLineRear.c_str(), sLineRear.length());
+    }
+}
+
+void AddArguments(wofstream& gOutputStream,
+                  WSTRING& sLine,
+                  const CSqlArgument& oArgument,
+                  const vector<wstring>& gInsertion)
+{
+    int nIndex = CheckProcedureRear(sLine, oArgument);
+    wstring sLineHead = sLine.substr(0, nIndex).append(L"\n");
+    wstring sLineRear = sLine.substr(nIndex);
+
+    gOutputStream.write(sLineHead.c_str(), sLineHead.length());
+
+    for(int i = 0; i < gInsertion.size(); i++)
+    {
+        wstring sInsertion = gInsertion[i];
+
+        sInsertion.append(L"\n");
+
+        gOutputStream.write(sInsertion.c_str(), sInsertion.length());
+    }
+
+    if(sLineRear.length() > 0)
+    {
+        sLineRear.append(L"\n");
+
+        gOutputStream.write(sLineRear.c_str(), sLineRear.length());
+    }
+}
+
+bool ProcessFile(CSqlDeclaration& oDeclaration,
+                 CSqlProcedure& oProcedure,
+                 WSTRING& sInputPath,
+                 WSTRING& sOutputPath,
+                 const map<wstring, wstring>& gParametersInsertion,
+                 const vector<wstring>& gArgumentsInsertion)
 {
     CSqlVariable oLastParameter = oDeclaration.QuoteParameters().Last();
+    CSqlArgument oLastArgument = oProcedure.QuoteArguments().Last();
     wifstream gInputStream(sInputPath);
-    wofstream gOuptutStream(sOutputPath, ios::trunc);
+    wofstream gOutputStream(sOutputPath, ios::trunc);
     size_t nReadingLine = 1;
     wchar_t wcsBuffer[2048] = {0};
+    int nReplaced = 0;
+    bool bResult = true;
 
-    while(gInputStream.getline(wcsBuffer,2048))
+    while(gInputStream.getline(wcsBuffer, 2048))
     {
+        wstring sLine(wcsBuffer);
+
         if(nReadingLine == oLastParameter.EndingLine())
         {
-            wstring sLine(wcsBuffer);
-            int nFound = sLine.find(L")");
-            /*int nRightBraces = CWStringHelper(sLine).Split(')').size();
-            int nLeftBraces = CWStringHelper(sLine).Split('(').size();
-            bool bSameLine = nRightBraces>nLeftBraces;*/
-
-            for(int i = 0; i < sInsertions.size(); i++)
-            {
-                /*if(0 == i && bSameLine)
-                {
-                    wstring sFirstWritten = sLine.substr(0, nFound);
-                    wstring sLastWritten = sLine.substr(nFound, sLine.length()-nFound);
-
-                    sFirstWritten.append("\n");
-
-                    gOuptutStream.write(sFirstWritten.c_str(), sFirstWritten.length());
-                    gOuptutStream.write(sInsertions[i].c_str(), sInsertions[i].length());
-
-                    sLastWritten.append("\n");
-
-                    gOuptutStream.write(sLastWritten.c_str(), sLastWritten.length());
-                }
-                else
-                {
-                }*/
-            }
+            AddParameters(gOutputStream, sLine, oLastParameter, gParametersInsertion);
+            nReadingLine++;
+            continue;
         }
+        else if(nReadingLine == oLastArgument.EndingLine())
+        {
+            AddArguments(gOutputStream, sLine, oLastArgument, gArgumentsInsertion);
+            nReadingLine++;
+            continue;
+        }
+        else
+        {
+            sLine.append(L"\n");
+            gOutputStream.write(sLine.c_str(), sLine.length());
+        }
+
+        nReadingLine++;
     }
 
     gInputStream.close();
-    gOuptutStream.close();
+    gOutputStream.close();
 
-    return true;
+    return bResult;
 }
 
 int main(int argc, char* argv[])
 {
-    /*wstring sInputPath("D:\\Rpt_JobExceptionSp.sql");
-    wstring sOutputPath("D:\\OUTPUT_Rpt_JobExceptionSp.sql");
-    
-    ifstream gInputStream(sInputPath);
-    CMssqlCapturer oCapturer;
-    CMssqlScanner oScanner(&gInputStream);
-
-    oScanner.Flex(&oCapturer);
-
-    gInputStream.close();*/
-
     wstring sDirectory = L"D:\\";
-    vector<wstring> gInsertions;
+    map<wstring, wstring> gParametersInertion;
+    vector<wstring> gInsertedParameterNames;
+    vector<wstring> gArgumentsInsertion;
     vector<wstring> gInputPaths = GetInputPaths(sDirectory, L"*.sql");
-    GDuplicatedFiles gDuplicatedFiles;
+    map<wstring, vector<wstring>> gDuplicatedParametersFiles;
+    vector<wstring> gDuplicatedProceduresFiles;
 
-    gInsertions.push_back(L"@UserId");
+    gParametersInertion[L"@UserId"] = L"   , @UserId   TokenType   =   NULL";
+    gArgumentsInsertion.push_back(L"         , @UserId");
+
+    for(auto a = gParametersInertion.begin(); a != gParametersInertion.end(); a++)
+    {
+        gInsertedParameterNames.push_back(a->first);
+    }
 
     for(int i = 0; i < gInputPaths.size(); i++)
     {
@@ -216,26 +289,37 @@ int main(int argc, char* argv[])
         gScannerStream.close();
 
         CSqlDeclaration oDeclaration = oCapturer.QuoteSqlFile().Declaration();
-        auto aDuplication = CheckDuplicatedParameterName(oDeclaration, gInsertions);
+        auto aDuplication = CheckDuplicatedParameterName(oDeclaration, gInsertedParameterNames);
 
         if(aDuplication.size() > 0)
         {
-            gDuplicatedFiles[oInputPath.FileName()] = aDuplication;
+            gDuplicatedParametersFiles[oInputPath.FileName()] = aDuplication;
 
             continue;
         }
 
-        wstring sOutputPath = sDirectory + oInputPath.FileName();
+        wstring sOutputPath = sDirectory + L"Outputs\\" + oInputPath.FileName();
+        const CSqlFile& oFile = oCapturer.QuoteSqlFile();
+        CQueried<CSqlProcedure> oProcedures = oFile.QueryProcedure(L"@EXTGEN_SpName");
 
-        //ProcessFile(oDeclaration, gInputPaths[i], sOutputPath, gInsertions);
+        if(oProcedures.Size() != 1)
+        {
+            gDuplicatedProceduresFiles.push_back(oInputPath.FileName());
+
+            continue;
+        }
+
+        ProcessFile(oDeclaration,
+            oProcedures[0],
+            gInputPaths[i],
+            sOutputPath,
+            gParametersInertion,
+            gArgumentsInsertion);
 
     }
 
-    PrintDuplicatedParameterFiles(gDuplicatedFiles);
-
-    //auto gDuplication = CheckParameterName(oCapturer.GetSqlFile().Declaration());
-
-    //ProcessFile(oCapturer, sInputPath, sOutputPath);
+    PrintDuplicatedParametersFiles(gDuplicatedParametersFiles);
+    PrintDuplicatedProceduresFiles(gDuplicatedProceduresFiles);
 
     return 0;
 }
