@@ -200,10 +200,10 @@ void AddParameter(vector<SProcedure>& oProcedures)
 {
     wstring sOutputDirectory = L"D:\\INFOR\\StyeLine\\Issues\\TRK142850\\RPT_RDLs\\Outputs\\";
     wstring sInserted =
-        L"         <QueryParameter Name=\"@UserId\">\n"\
+        L"         <QueryParameter Name=\"@BGUserId\">\n"\
         L"            <Value>=Parameters!BG_USERID.Value<\/Value>\n"\
         L"            <rd:UserDefined>true<\/rd:UserDefined>\n"\
-        L"          <\/QueryParameter>\n";
+        L"         <\/QueryParameter>\n";
 
     for(auto a = oProcedures.begin(); a != oProcedures.end(); a++)
     {
@@ -248,7 +248,7 @@ void main(int argc, wchar_t* argv[])
 
     wcout<<L"Total "<<aProcedures.size()<<L" files need to be processed"<<endl;
 
-    //AddParameter(aProcedures);
+    AddParameter(aProcedures);
 
     return;
 }

@@ -261,16 +261,19 @@ bool ProcessFile(CSqlDeclaration& oDeclaration,
 
 int main(int argc, char* argv[])
 {
-    wstring sDirectory = L"D:\\";
+    string sScannerOutputFile = "./Scanner.output.txt";
+    wstring sDirectory = L"D:\\INFOR\\StyeLine\\Issues\\TRK142850\\RptSPs\\";
     map<wstring, wstring> gParametersInertion;
     vector<wstring> gInsertedParameterNames;
     vector<wstring> gArgumentsInsertion;
-    vector<wstring> gInputPaths = GetInputPaths(sDirectory, L"*.sql");
+    vector<wstring> gInputPaths = GetInputPaths(sDirectory, L"*.sp");
     map<wstring, vector<wstring>> gDuplicatedParametersFiles;
     vector<wstring> gDuplicatedProceduresFiles;
+    vector<wstring> gProcessedFiles;
+    ofstream gScannerOutputStream(sScannerOutputFile, ios::trunc);
 
-    gParametersInertion[L"@UserId"] = L"   , @UserId   TokenType   =   NULL";
-    gArgumentsInsertion.push_back(L"         , @UserId");
+    gParametersInertion[L"@BGUserId"] = L"   , @BGUserId   UserNameType   =   NULL";
+    gArgumentsInsertion.push_back(L"         , @BGUserId");
 
     for(auto a = gParametersInertion.begin(); a != gParametersInertion.end(); a++)
     {
@@ -282,7 +285,7 @@ int main(int argc, char* argv[])
         CPath oInputPath(gInputPaths[i]);
         CMssqlCapturer oCapturer;
         ifstream gScannerStream(gInputPaths[i]);
-        CMssqlScanner oScanner(&gScannerStream);
+        CMssqlScanner oScanner(&gScannerStream, &gScannerOutputStream);
 
         oScanner.Flex(&oCapturer);
 
@@ -294,7 +297,9 @@ int main(int argc, char* argv[])
         if(aDuplication.size() > 0)
         {
             gDuplicatedParametersFiles[oInputPath.FileName()] = aDuplication;
-
+            
+            wcout<<"Ignored:"<<oInputPath.FileName()<<endl;
+            
             continue;
         }
 
@@ -306,6 +311,8 @@ int main(int argc, char* argv[])
         {
             gDuplicatedProceduresFiles.push_back(oInputPath.FileName());
 
+            wcout<<"Ignored:"<<oInputPath.FileName()<<endl;
+
             continue;
         }
 
@@ -316,10 +323,20 @@ int main(int argc, char* argv[])
             gParametersInertion,
             gArgumentsInsertion);
 
+        gProcessedFiles.push_back(oInputPath.FileName());
+        wcout<<"Processed:"<<oInputPath.FileName()<<endl;
     }
+
+    gScannerOutputStream.close();
 
     PrintDuplicatedParametersFiles(gDuplicatedParametersFiles);
     PrintDuplicatedProceduresFiles(gDuplicatedProceduresFiles);
+
+    wcout<<"Total Processed:"
+        <<gProcessedFiles.size()
+        <<" Total Ignored:"
+        <<gDuplicatedParametersFiles.size()+gDuplicatedProceduresFiles.size()
+        <<endl;
 
     return 0;
 }
